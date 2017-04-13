@@ -7,7 +7,7 @@ groundIR::groundIR()
 }
 
 
-groundIR::groundIR(uint8_t pin)
+groundIR::groundIR(int pin)
 {
 	sensor = pin;
 	state = -1;

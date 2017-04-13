@@ -5,14 +5,14 @@ void motorShield::initialize()
 	pinMode(statpin, OUTPUT);
 
 	// Initialize digital pins as outputs
-	for (uint8_t i = 0; i<2; i++)
+	for (int i = 0; i<2; i++)
 	{
 		pinMode(inApin[i], OUTPUT);
 		pinMode(inBpin[i], OUTPUT);
 		pinMode(pwmpin[i], OUTPUT);
 	}
 	// Initialize braked
-	for (uint8_t i = 0; i<2; i++)
+	for (int i = 0; i<2; i++)
 	{
 		digitalWrite(inApin[i], LOW);
 		digitalWrite(inBpin[i], LOW);
@@ -20,10 +20,10 @@ void motorShield::initialize()
 }
 
 
-void motorShield::motorOff(uint8_t motor)
+void motorShield::motorOff(int motor)
 {
 	// Initialize braked
-	for (uint8_t i = 0; i<2; i++)
+	for (int i = 0; i<2; i++)
 	{
 		digitalWrite(inApin[i], LOW);
 		digitalWrite(inBpin[i], LOW);
@@ -31,7 +31,7 @@ void motorShield::motorOff(uint8_t motor)
 	analogWrite(pwmpin[motor], 0);
 }
 
-void motorShield::motorGo(uint8_t motor, uint8_t direct, uint8_t pwm)
+void motorShield::motorGo(int motor, int direct, int pwm)
 {
 	if(motor <= 1)
 	{
@@ -54,25 +54,25 @@ void motorShield::motorGo(uint8_t motor, uint8_t direct, uint8_t pwm)
 	}
 }
 
-void motorShield::turnLeft(uint8_t SPEED)
+void motorShield::turnLeft(int SPEED)
 {
 	motorGo(0, CCW, SPEED);
 	motorGo(1, CCW, SPEED);
 }
 
-void motorShield::turnRight(uint8_t SPEED)
+void motorShield::turnRight(int SPEED)
 {
 	motorGo(0, CW, SPEED);
 	motorGo(1, CW, SPEED);
 }
 
-void motorShield::forward(uint8_t SPEED)
+void motorShield::forward(int SPEED)
 {
 	motorGo(0, CCW, SPEED);
 	motorGo(1, CW, SPEED);
 }
 
-void motorShield::backward(uint8_t SPEED)
+void motorShield::backward(int SPEED)
 {
 	motorGo(0, CW, SPEED);
 	motorGo(1, CCW, SPEED);

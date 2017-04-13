@@ -7,11 +7,13 @@ class beacon
 public:
 	beacon();
 	void initialize();
-	bool beaconPresent();
+	void updatePresent();
 	void findBeacon();
 	uint16_t returnLocation();
+	bool returnPresent();
 
 private:
+	bool present;
 	uint16_t location;
-	uint8_t MSB, LSB;
+	int MSB, LSB;
 };

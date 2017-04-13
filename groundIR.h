@@ -5,11 +5,11 @@ class groundIR
 {
 public:
 	groundIR();//default constructor
-	groundIR(uint8_t);
+	groundIR(int);
 	void initialize();
 	bool isGroundPres();
 
 private:
-	uint8_t sensor;
-	uint8_t state;
+	int sensor;
+	int state;
 };

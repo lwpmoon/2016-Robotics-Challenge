@@ -1,12 +1,15 @@
 #pragma once
 #include <Wire.h>
 #include <Arduino.h>
-#include <Adafruit_BNO055.h>
+//#include <Adafruit_BNO055.h>
 #include <LiquidCrystal.h>
 #include "motorShield.h"
+#include <HMC5883L.h>
+#include <math.h>
+
 //#include "groundSen.h"
 
-#define BNO055_SAMPLERATE_DELAY_MS (100)
+//#define BNO055_SAMPLERATE_DELAY_MS (100)
 
 
 class compass
@@ -14,11 +17,13 @@ class compass
 public:
 	compass();
 	void initialize();
-	uint8_t updateHeading();
-	uint8_t returnHeading();
+	void updateHeading();
+	int returnHeading();
+	int directionFinder(int);
+private:
+	void readHMC();
 	void calibrate();
 	void getCalibration();
-	uint8_t directionFinder(uint8_t);
-private:
-	uint8_t heading;
+
+	float heading, headingDegrees, declinationAngle = (4.0 + (26.0 / 60.0)) / (180 / M_PI);
 };

@@ -8,7 +8,7 @@ ultraSonic::ultraSonic()
 	pingPin = 0;
 }
 
-ultraSonic::ultraSonic(uint8_t pin)
+ultraSonic::ultraSonic(int pin)
 {
 	duration = 0;
 	inches = 0;
@@ -34,8 +34,9 @@ void ultraSonic::updateDistance()
 	cm = duration / 29 / 2;
 }
 
-uint8_t ultraSonic::distanceCM()
+int ultraSonic::distanceCM()
 {
-	return cm;
+	return 100;
+	//return cm;
 }
 

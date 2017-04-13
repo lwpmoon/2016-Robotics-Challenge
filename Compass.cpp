@@ -1,76 +1,108 @@
 #include "Compass.h"
+#include <math.h>
 
-Adafruit_BNO055 bno = Adafruit_BNO055();
-LiquidCrystal lcd2(13, 12, 11, 10, 1, 0);
+
+//Adafruit_BNO055 bno = Adafruit_BNO055();
+//LiquidCrystal lcd2(13, 12, 11, 10, 1, 0);
+HMC5883L mag;
 
 void compass::initialize()
 {
-	// Initialise the BNO055
-	if (!bno.begin(Adafruit_BNO055::OPERATION_MODE_COMPASS))
+	while (!mag.begin())
 	{
-		//Hold here if BNO is not found
-		while (1);
+		Serial.println("Could not find a valid HMC5883L sensor, check wiring!");
+		delay(500);
 	}
-	bno.setExtCrystalUse(true);
 	delay(50);
+
+	mag.setRange(HMC5883L_RANGE_1_3GA);
+
+	// Set measurement mode
+	mag.setMeasurementMode(HMC5883L_CONTINOUS);
+
+	// Set data rate
+	mag.setDataRate(HMC5883L_DATARATE_30HZ);
+
+	// Set number of samples averaged
+	mag.setSamples(HMC5883L_SAMPLES_8);
+
+	// Set calibration offset. See HMC5883L_calibration.ino
+	mag.setOffset(0, 0);
 	
 }
 
 
-void compass::calibrate()
+#pragma region BNO
+//void compass::calibrate()
+//{
+//	//Hold to calibrate the bno
+//	int system, gyro, accel, mag = 0;
+//	while (mag != 3)
+//	{
+//		//lcd2.clear();
+//		//lcd2.print("Calibrating...");
+//		delay(100);
+//		
+//		//lcd2.setCursor(0, 1);
+//		//lcd2.print("Mag: ");
+//		//lcd2.print(mag, DEC);
+//		delay(500);
+//		//bno.getCalibration(&system, &gyro, &accel, &mag);
+//	}
+//	//Wake up BNO by poking it a couple times...
+//	//imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
+//}
+
+//void compass::getCalibration()
+//{
+//	//Calibration status
+//	int system, gyro, accel, mag = 0;
+//	bno.getCalibration(&system, &gyro, &accel, &mag);
+//	Serial.print("CALIBRATION: Sys=");
+//	Serial.print(system, DEC);
+//	Serial.print(", ");
+//	Serial.print(" Gyro=");
+//	Serial.print(gyro, DEC);
+//	Serial.print(", ");
+//	Serial.print(" Accel=");
+//	Serial.print(accel, DEC);
+//	Serial.print(", ");
+//	Serial.print(" Mag=");
+//	Serial.println(mag, DEC);
+//}  
+#pragma endregion
+
+void compass::readHMC()
 {
-	//Hold to calibrate the bno
-	uint8_t system, gyro, accel, mag = 0;
-	while (mag != 3)
-	{
-		lcd2.clear();
-		lcd2.print("Calibrating...");
-		delay(100);
-		
-		lcd2.setCursor(0, 1);
-		lcd2.print("Mag: ");
-		lcd2.print(mag, DEC);
-		delay(500);
-		bno.getCalibration(&system, &gyro, &accel, &mag);
-	}
-	//Wake up BNO by poking it a couple times...
-	imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
+	Vector norm = mag.readNormalize();
+	heading = atan2(norm.YAxis, norm.XAxis);
+	heading += declinationAngle;
 }
 
-void compass::getCalibration()
+void compass::updateHeading()
 {
-	//Calibration status
-	uint8_t system, gyro, accel, mag = 0;
-	bno.getCalibration(&system, &gyro, &accel, &mag);
-	Serial.print("CALIBRATION: Sys=");
-	Serial.print(system, DEC);
-	Serial.print(", ");
-	Serial.print(" Gyro=");
-	Serial.print(gyro, DEC);
-	Serial.print(", ");
-	Serial.print(" Accel=");
-	Serial.print(accel, DEC);
-	Serial.print(", ");
-	Serial.print(" Mag=");
-	Serial.println(mag, DEC);
-}
-
-
-uint8_t compass::updateHeading()
-{
-	imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
-	heading = euler.x() + 90;
-	if (heading >= 360)
+	readHMC();
+	/*if (heading >= 360)
 	{
 		heading = heading - 360;
+	}*/
+
+	if (heading < 0)
+	{
+		heading += 2 * PI;
 	}
-	return heading;
+
+	if (heading > 2 * PI)
+	{
+		heading -= 2 * PI;
+	}
+	headingDegrees = heading * 180 / M_PI;
 }
 
-uint8_t compass::directionFinder(uint8_t location)
+int compass::directionFinder(int location)
 {
-	uint8_t direction = 0; //0 = left
-	uint8_t rotation = heading - location;
+	int direction = 0; //0 = left
+	int rotation = heading - location;
 	if (rotation < 0){ //Correct negative headings 
 		rotation = rotation + 360;
 	}
@@ -81,14 +113,13 @@ uint8_t compass::directionFinder(uint8_t location)
 	return direction;
 }
 
-uint8_t compass::returnHeading()
+int compass::returnHeading()
 {
-	return heading;
+	return headingDegrees;
 }
-
-
 
 compass::compass()
 {
 	heading = 0;
+	headingDegrees = 0;
 }

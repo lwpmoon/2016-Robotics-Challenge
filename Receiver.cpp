@@ -3,6 +3,7 @@
 beacon::beacon()
 {
 	location = 0;
+	present = false;
 }
 
 void beacon::initialize()
@@ -10,17 +11,14 @@ void beacon::initialize()
 	Wire.begin();
 }
 
-bool beacon::beaconPresent()
+void beacon::updatePresent()
 {
 	Wire.requestFrom(8, 2);
 	MSB = Wire.read();
 	LSB = Wire.read();
 	int holder = (MSB << 8) | LSB;
-	if (holder==-1)
-	{
-		return false;
-	}
-	return true;
+	if (holder == -1)present = false;
+	else present = true;
 }
 
 
@@ -41,3 +39,9 @@ uint16_t beacon::returnLocation()
 {
 	return location;
 }
+
+bool beacon::returnPresent()
+{
+	return present;
+}
+

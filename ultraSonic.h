@@ -6,11 +6,11 @@ class ultraSonic
 public:
 	void initialize();
 	void updateDistance();
-	uint8_t distanceCM();
-	ultraSonic(uint8_t);
+	int distanceCM();
+	ultraSonic(int);
 	ultraSonic();
 
 private:
-	uint8_t pingPin;
-	uint8_t duration, inches, cm;
+	int pingPin;
+	int duration = 0, inches = 0, cm = 0;
 };
